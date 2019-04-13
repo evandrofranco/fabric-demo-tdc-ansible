@@ -1,0 +1,19 @@
+OrdererOrgs:
+  - Name: Orderer
+    Domain: demo.com
+    Specs:
+      - Hostname: orderer0
+      - Hostname: orderer1
+PeerOrgs:
+  - Name: Node1
+    Domain: node1.demo.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Node2
+    Domain: node2.demo.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1

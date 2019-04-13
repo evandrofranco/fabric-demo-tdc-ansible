@@ -1,0 +1,128 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+################################################################################
+#
+#   Profile
+#
+#   - Different configuration profiles may be encoded here to be specified
+#   as parameters to the configtxgen tool
+#
+################################################################################
+
+
+################################################################################
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+Organizations:
+
+    - &OrdererOrg
+        Name: OrdererOrg
+
+        ID: OrdererMSP
+
+        MSPDir: crypto-config/ordererOrganizations/demo.com/msp
+
+    - &Node1
+        Name: Node1MSP
+        ID: Node1MSP
+        MSPDir: crypto-config/peerOrganizations/node1.demo.com/msp
+        AnchorPeers:
+            - Host: peer0.node1.demo.com
+              Port: 7051
+
+    - &Node2
+        Name: Node2MSP
+        ID: Node2MSP
+        MSPDir: crypto-config/peerOrganizations/node2.demo.com/msp
+        AnchorPeers:
+            - Host: peer0.node2.demo.com
+              Port: 7051
+
+################################################################################
+#
+#   SECTION: Orderer
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for orderer related parameters
+#
+################################################################################
+Orderer: &OrdererDefaults
+
+    OrdererType: kafka
+
+    Addresses:
+        - orderer0.demo.com:7050
+        - orderer1.demo.com:7050
+
+    BatchTimeout: 2s
+
+    BatchSize:
+
+        MaxMessageCount: 10
+
+        AbsoluteMaxBytes: 99 MB
+
+        PreferredMaxBytes: 512 KB
+
+    Kafka:
+        Brokers:
+            - kafka0:9092
+            - kafka1:9092
+
+    Organizations:
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+Application: &ApplicationDefaults
+
+    Organizations:
+
+################################################################################
+#
+#   SECTION: Capabilities
+#
+################################################################################
+#Capabilities:
+#    Global: &ChannelCapabilities
+#        V1_1: true
+#
+#    Orderer: &OrdererCapabilities
+#        V1_1: true
+#
+#   Application: &ApplicationCapabilities
+#        V1_2: true
+
+
+Profiles:
+
+    TwoOrgsOrdererGenesis:
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+        Consortiums:
+            MainConsortium:
+                Organizations:
+                    - *Node1
+                    - *Node2
+    MainOrgsChannel:
+        Consortium: MainConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Node1
+                - *Node2
